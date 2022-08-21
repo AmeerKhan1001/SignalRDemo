@@ -1,0 +1,50 @@
+﻿@page
+@model GroupsModel
+@{
+    ViewData["Title"] = "Groups Demo";
+}
+
+<span style="font-size: 20px">Group : </span><span id="groupName" style="font-size: 16px"></span>
+<br />
+<br />
+<button id="btnJoinYellow">Join Yellow</button>
+<button id="btnJoinBlue">Join Blue</button>
+<button id="btnJoinOrange">Join Orange</button>
+<br />
+<br />
+<button id="btnTriggerYellow">Trigger Yellow</button>
+<button id="btnTriggerBlue">Trigger Blue</button>
+<button id="btnTriggerOrange">Trigger Orange</button>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
+
+    let btnJoinYellow = document.getElementById("btnJoinYellow");
+    let btnJoinBlue = document.getElementById("btnJoinBlue");
+    let btnJoinOrange = document.getElementById("btnJoinOrange");
+    let btnTriggerYellow = document.getElementById("btnTriggerYellow");
+    let btnTriggerBlue = document.getElementById("btnTriggerBlue");
+    let btnTriggerOrange = document.getElementById("btnTriggerOrange");
+    let grpName = document.getElementById("groupName");
+
+    // Create and start the connection
+    let connection = new signalR.HubConnectionBuilder().withUrl("/colorHub").build();
+
+    connection.start().catch(function(err) {
+        console.error(err.toString());
+    });
+
+    // Button event handlers
+    btnJoinYellow.addEventListener("click", () => { connection.invoke("JoinGroup", "Yellow"); grpName.innerText += " Yellow"; }, {once: true});
+    btnJoinBlue.addEventListener("click", () => { connection.invoke("JoinGroup", "Blue"); grpName.innerText += " Blue"; btnJoinBlue.removeAttribute('onclick'); }, {once: true});
+    btnJoinOrange.addEventListener("click", () => { connection.invoke("JoinGroup", "Orange"); grpName.innerText += " Orange"; btnJoinOrange.removeAttribute('onclick'); }, {once: true});
+
+    btnTriggerYellow.addEventListener("click", () => { connection.invoke("TriggerGroup", "Yellow"); });
+    btnTriggerBlue.addEventListener("click", () => { connection.invoke("TriggerGroup", "Blue"); });
+    btnTriggerOrange.addEventListener("click", () => { connection.invoke("TriggerGroup", "Orange"); });
+
+    // Client events
+    connection.on("triggerColor", (color) => {
+        document.getElementsByTagName("body")[0].style.backgroundColor = color;
+    });
+</script>

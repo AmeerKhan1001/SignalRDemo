@@ -1,0 +1,26 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Viewers Live";
+}
+
+<div class="text-center">
+    <h3 class="display-4">Live Viewer Count : </h3><h3 id="viewerCount">0</h3>
+</div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
+    // Create and start the connection
+    let connection = new signalR.HubConnectionBuilder().withUrl("/viewerHub").build();
+
+    connection.start().catch(function(err) {
+        console.error(err.toString());
+    });
+
+    // Client events
+    let viewerCountText = document.getElementById('viewerCount');
+
+    connection.on("updateViewerCount", function(viewerCount) {
+        viewerCountText.innerText = viewerCount;
+    });
+</script>
